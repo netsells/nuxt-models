@@ -1,4 +1,4 @@
-import BaseModel from '../src/BaseModel';
+import { BaseModel } from '../src/index';
 
 describe('BaseModel', () => {
     it('is a function', () => {

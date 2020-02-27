@@ -1,5 +1,4 @@
-import AttributeModel from '../src/AttributeModel';
-import ModelError from '../src/ModelError';
+import { AttributeModel, ModelError } from '../src/index';
 
 class BrokenIdentifier extends AttributeModel {}
 BrokenIdentifier.identifier = 5;
