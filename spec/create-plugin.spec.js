@@ -5,6 +5,7 @@ import logger from '../src/logger';
 import createPlugin, { BaseModel } from '../src/index';
 
 class FooModel extends BaseModel {}
+class BrokenModel {}
 
 const TestBase = {
     template: '<div />',
@@ -17,12 +18,15 @@ describe('createPlugin', () => {
     let info;
     let fatal;
     let wrapper;
+    let warn;
 
     beforeEach(() => {
         info = jest.fn();
         fatal = jest.fn();
+        warn = jest.fn();
         logger.mockTypes((typeName) => typeName === 'info' && info);
         logger.mockTypes((typeName) => typeName === 'fatal' && fatal);
+        logger.mockTypes((typeName) => typeName === 'warn' && warn);
 
         localVue = createLocalVue();
         localVue.use(Vuex);
@@ -97,6 +101,10 @@ describe('createPlugin', () => {
                 nuxtPlugin({ app, store });
             });
 
+            it('shows no warnings', () => {
+                expect(warn).not.toHaveBeenCalled();
+            });
+
             it('registers the classes', () => {
                 wrapper = mount(TestBase, {
                     localVue,
@@ -105,6 +113,26 @@ describe('createPlugin', () => {
                 expect(() => {
                     wrapper.vm.$nnp.save(new FooModel({ id: 1 }));
                 }).not.toThrow();
+            });
+        });
+    });
+
+    describe('when called with wrong classes', () => {
+        let nuxtPlugin;
+
+        beforeEach(() => {
+            nuxtPlugin = createPlugin(localVue, {
+                classes: [BrokenModel],
+            });
+        });
+
+        describe('when return function called', () => {
+            beforeEach(() => {
+                nuxtPlugin({ app, store });
+            });
+
+            it('shows a warning', () => {
+                expect(warn).toHaveBeenCalledWith('Passed class "BrokenModel" does not extend BaseModel');
             });
         });
     });
