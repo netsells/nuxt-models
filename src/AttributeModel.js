@@ -1,20 +1,18 @@
+import ModelError from './ModelError';
+
 class AttributeModel {
-    constructor(fields) {
+    constructor(fields = {}) {
         this.fields = fields;
 
         if (typeof this.constructor.identifier !== 'string') {
-            throw new Error(`Static property must be a string: ${ this.constructor.name }::identifier`);
+            throw new ModelError(`Static property must be a string: ${ this.constructor.name }::identifier`);
         }
 
         if (!Array.isArray(this.constructor.attributes)) {
-            throw new Error(`Static property must be an array: ${ this.constructor.name }::attributes`);
+            throw new ModelError(`Static property must be an array: ${ this.constructor.name }::attributes`);
         }
 
-        if (!this.constructor.attributes.includes(this.constructor.identifier)) {
-            this.constructor.attributes.push(this.constructor.identifier);
-        }
-
-        this.constructor.attributes.forEach(attrName => {
+        this.constructor._attributes.forEach(attrName => {
             Object.defineProperty(this, attrName, {
                 get() {
                     return this.fields[attrName];
@@ -25,6 +23,10 @@ class AttributeModel {
                 },
             });
         });
+    }
+
+    static get _attributes() {
+        return [...this.attributes, this.identifier];
     }
 }
 
