@@ -117,6 +117,30 @@ describe('createPlugin', () => {
         });
     });
 
+    describe('when called with custom $nnp', () => {
+        let nuxtPlugin;
+
+        beforeEach(() => {
+            nuxtPlugin = createPlugin(localVue, {
+                $nnp: '$m',
+            });
+        });
+
+        it('returns a function', () => {
+            expect(nuxtPlugin).toEqual(expect.any(Function));
+        });
+
+        describe('when return function called', () => {
+            beforeEach(() => {
+                nuxtPlugin({ app, store });
+            });
+
+            it('registers the global', () => {
+                expect(app.$m).toEqual(expect.any(Function));
+            });
+        });
+    });
+
     describe('when called with wrong classes', () => {
         let nuxtPlugin;
 
